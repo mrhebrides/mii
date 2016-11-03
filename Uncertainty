@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+	xmlns:uom="http://schema.metrology.net/UnitsOfMeasure"
+	xmlns:unc="http://schema.metrology.net/Uncertainty"
+	targetNamespace="http://schema.metrology.net/Uncertainty" elementFormDefault="qualified"
+	xpathDefaultNamespace="##targetNamespace" vc:minVersion="1.1">
+
+	<xs:import namespace="http://www.w3.org/XML/1998/namespace"
+		schemaLocation="http://www.w3.org/2005/08/xml.xsd"/>
+	<xs:import namespace="http://schema.metrology.net/UnitsOfMeasure"
+		schemaLocation="http://schema.metrology.net/UOM_Database.xsd"/>
+
+	<xs:element name="CMCs">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="CMC" maxOccurs="unbounded" type="unc:CMC_type"> </xs:element>
+				<xs:element ref="uom:UOMDatabase"/>
+			</xs:sequence>
+			<xs:attribute ref="xml:base"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="CMC_type">
+		<xs:sequence>
+			<xs:element name="Category">
+				<xs:complexType>
+					<xs:sequence minOccurs="0">
+						<xs:element name="Category">
+							<xs:complexType>
+								<xs:sequence/>
+								<xs:attribute name="name" type="xs:string"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="name" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:choice>
+				<xs:element name="DUT_Types">
+					<xs:complexType>
+						<xs:sequence maxOccurs="unbounded">
+							<xs:element name="DUT_Type" type="xs:string"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="DUT_Type" type="xs:string"/>
+			</xs:choice>
+			<xs:element name="Process">
+				<xs:complexType>
+					<xs:attribute name="name" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Technique">
+				<xs:complexType>
+					<xs:attribute name="name" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Template" type="unc:Format_type" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Format_type">
+		<xs:sequence>
+			<xs:choice>
+				<xs:element minOccurs="0" name="InfluenceQuantities">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element maxOccurs="unbounded" name="InfluenceQuantity"
+								type="unc:Operand_type"> </xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element minOccurs="0" name="InfluenceQuantity" type="unc:Operand_type">
+				</xs:element>
+			</xs:choice>
+			<xs:element name="Formula" type="unc:Formula_type" maxOccurs="unbounded"/>
+			<xs:choice>
+				<xs:element name="Conditions">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element maxOccurs="unbounded" ref="unc:Condition"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element maxOccurs="unbounded" ref="unc:Ranges"/>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Formula_type">
+		<xs:sequence>
+			<xs:element minOccurs="1" name="Function" type="xs:string"/>
+			<xs:element name="SymbolDefinitions">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Result" type="unc:Result_type"> </xs:element>
+						<xs:choice maxOccurs="unbounded">
+							<xs:element name="Constant" type="unc:Operand_type"> </xs:element>
+							<xs:element name="Input" type="unc:Operand_type"> </xs:element>
+						</xs:choice>
+					</xs:sequence>
+				</xs:complexType>
+				<xs:unique name="NoDuplicateSymbolDefinitions">
+					<xs:selector xpath="./*"/>
+					<xs:field xpath="unc:Symbol"/>
+				</xs:unique>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute default="" name="heading" type="xs:string"/>
+	</xs:complexType>
+	<xs:complexType name="Value_type">
+		<xs:simpleContent>
+			<xs:extension base="xs:decimal">
+				<xs:attribute name="uom_alternative" type="xs:NCName"/>
+				<xs:attribute name="uom_alias_symbol" type="xs:NCName"/>
+				<xs:attribute name="format" use="optional">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:pattern value="[0#,.]*"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:element name="Condition">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice minOccurs="0">
+					<xs:element ref="unc:Condition"/>
+					<xs:element name="Conditions">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" ref="unc:Condition"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element maxOccurs="unbounded" ref="unc:Ranges"/>
+				</xs:choice>
+				<xs:choice>
+					<xs:element name="Generic">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="Name" type="xs:string"/>
+								<xs:element name="Value" type="xs:string"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="Equipment">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="EquipmentID" type="xs:string"/>
+								<xs:element name="Role" type="xs:string" minOccurs="0"/>
+								<xs:element minOccurs="0" name="Description"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:choice>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Range">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Start">
+					<xs:complexType>
+						<xs:sequence minOccurs="0">
+							<xs:element name="Value" type="unc:Value_type"/>
+						</xs:sequence>
+						<xs:attribute name="test" use="required">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:enumeration value="at"/>
+									<xs:enumeration value="before"/>
+									<xs:enumeration value="after"/>
+									<xs:enumeration value="not applicable"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="End">
+					<xs:complexType>
+						<xs:sequence minOccurs="0">
+							<xs:element name="Value" type="unc:Value_type"/>
+						</xs:sequence>
+						<xs:attribute name="test" use="required">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:enumeration value="at"/>
+									<xs:enumeration value="before"/>
+									<xs:enumeration value="after"/>
+									<xs:enumeration value="not applicable"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+				<xs:choice>
+					<xs:element maxOccurs="unbounded" name="Constant">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="Symbol" type="xs:string"/>
+								<xs:element name="Value" type="unc:Value_type"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element maxOccurs="unbounded" ref="unc:Ranges"/>
+				</xs:choice>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="Operand_type">
+		<xs:sequence>
+			<xs:element name="Symbol" type="xs:string"/>
+			<xs:element name="Quantity" type="xs:string"/>
+			<xs:element name="Description" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Result_type">
+		<xs:sequence>
+			<xs:element name="Quantity" type="xs:string"/>
+			<xs:element name="Description" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="Ranges">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element maxOccurs="unbounded" name="Selector">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Symbol" type="xs:string"/>
+							<xs:element maxOccurs="unbounded" ref="unc:Range"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
